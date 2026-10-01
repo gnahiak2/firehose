@@ -5,6 +5,7 @@ import {
     isUserExempt,
     destroyThread,
     postEphemeral,
+    logInternal,
 } from '../../utils/index.js';
 
 async function newaccountListener({
@@ -40,6 +41,7 @@ async function newaccountListener({
             user,
             `This channel requires your account to be at least ${gate.minAgeDays} day${gate.minAgeDays === 1 ? '' : 's'} old to post. You'll be able to post here in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}.`
         ),
+        logInternal(`Message deleted from a new account in <#${channel}> from <@${user}>.`),
     ]);
 }
 
