@@ -1,5 +1,5 @@
 import type { SlackCommandMiddlewareArgs, AllMiddlewareArgs } from '@slack/bolt';
-import { getPrisma, isUserOwner, postEphemeral, logInternal } from '../../utils/index.js';
+import { getPrisma, isUserAdmin, postEphemeral, logInternal } from '../../utils/index.js';
 
 async function newaccountCommand({
     payload: { text, channel_id, user_id },
@@ -7,8 +7,8 @@ async function newaccountCommand({
 }: SlackCommandMiddlewareArgs & AllMiddlewareArgs) {
     ack();
 
-    if (!isUserOwner(user_id)) {
-        return await postEphemeral(channel_id, user_id, 'Only workspace owners can run this command.');
+    if (!(await isUserAdmin(user_id))) {
+        return await postEphemeral(channel_id, user_id, 'Only workspace admins can run this command.');
     }
 
     const parts = text.trim().split(/\s+/);

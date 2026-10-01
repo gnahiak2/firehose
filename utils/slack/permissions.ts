@@ -1,6 +1,5 @@
 import { client } from './client.js';
 import { isUserAPIAvailable, userAPI } from './userAPI.js';
-import { env } from '../env.js';
 
 const channelManagersCache = new Map<string, { managers: string[]; expiresAt: number }>();
 const CHANNEL_CACHE_TTL_MS = 60 * 1000;
@@ -89,10 +88,6 @@ export async function isUserInFirehouse(userId: string): Promise<boolean> {
     };
 
     return members.has(userId);
-}
-
-export function isUserOwner(userId: string): boolean {
-    return env.SUPERADMIN_IDS.split(',').map(id => id.trim()).filter(Boolean).includes(userId);
 }
 
 export async function isUserExempt(
