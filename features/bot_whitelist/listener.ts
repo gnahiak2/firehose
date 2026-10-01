@@ -87,7 +87,9 @@ async function messageListener({
 
         if (identifier === authInfo.user_id || botId === authInfo.bot_id) return;
 
-        const botUserId = (botInfo as any)?.bot?.user_id as string | undefined;
+        const botUserId =
+            ((botInfo as any)?.bot?.user_id as string | undefined) ??
+            (userInfo?.user?.profile?.bot_id === botId ? userId : undefined);
 
         console.log('[bot-whitelist] message check:', {
             userId,
@@ -97,7 +99,6 @@ async function messageListener({
         });
 
         const isWhitelisted =
-            config.botIds.includes(userId ?? '') ||
             config.botIds.includes(botId ?? '') ||
             (botUserId ? config.botIds.includes(botUserId) : false);
 
@@ -106,8 +107,8 @@ async function messageListener({
         if (!isWhitelisted) {
             const messageLink = getMessageLink(channel, ts, threadTs);
             const appId = botInfo?.bot?.app_id || userInfo?.user?.profile?.api_app_id;
-            const displayName = userInfo?.user?.real_name || botInfo?.bot?.name || identifier;
-            const botMentionId = botUserId || userId;
+            const displayName = botInfo?.bot?.name || identifier;
+            const botMentionId = botUserId;
             const botIdentity = botMentionId
                 ? `<@${botMentionId}> - ${botMentionId}`
                 : `${displayName} - ${botId || identifier}`;
