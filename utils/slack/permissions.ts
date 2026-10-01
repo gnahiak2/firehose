@@ -5,7 +5,7 @@ import { env } from '../env.js';
 const channelManagersCache = new Map<string, { managers: string[]; expiresAt: number }>();
 const CHANNEL_CACHE_TTL_MS = 60 * 1000;
 
-const userInfoCache = new Map<string, { isAdmin: boolean; expiresAt: number }>();
+const userInfoCache = new Map<string, { isAdmin: boolean; isBot: boolean; expiresAt: number }>();
 const USER_CACHE_TTL_MS = 60 * 1000;
 
 let firehouseMembersCache: { members: Set<string>; expiresAt: number } | null = null;
@@ -37,17 +37,30 @@ export async function getChannelManagers(channel: string): Promise<string[]> {
     return managers;
 }
 
-export async function isUserAdmin(userId: string): Promise<boolean> {
+async function getUserFlags(userId: string): Promise<{ isAdmin: boolean; isBot: boolean }> {
     const cached = userInfoCache.get(userId);
     if (cached && cached.expiresAt > Date.now()) {
-        return cached.isAdmin;
+        return cached;
     }
 
     const userInfo = await client.users.info({ user: userId });
     const isAdmin = userInfo.user?.is_admin || false;
+    const isBot =
+        userInfo.user?.is_bot ||
+        userInfo.user?.is_app_user ||
+        userInfo.user?.is_workflow_bot ||
+        false;
 
-    userInfoCache.set(userId, { isAdmin, expiresAt: Date.now() + USER_CACHE_TTL_MS });
-    return isAdmin;
+    userInfoCache.set(userId, { isAdmin, isBot, expiresAt: Date.now() + USER_CACHE_TTL_MS });
+    return { isAdmin, isBot };
+}
+
+export async function isUserAdmin(userId: string): Promise<boolean> {
+    return (await getUserFlags(userId)).isAdmin;
+}
+
+export async function isUserBot(userId: string): Promise<boolean> {
+    return (await getUserFlags(userId)).isBot;
 }
 
 export async function isUserInFirehouse(userId: string): Promise<boolean> {

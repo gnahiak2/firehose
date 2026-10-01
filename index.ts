@@ -29,6 +29,8 @@ for (const feature of features) {
 }
 
 app.event('team_join', async ({ event }) => {
+  if (event.user.is_bot || event.user.is_app_user || event.user.is_workflow_bot) return;
+
   const prisma = getPrisma();
   await prisma.memberJoinDate.upsert({
     where: { userId: event.user.id },

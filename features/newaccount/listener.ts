@@ -1,5 +1,11 @@
 import type { SlackEventMiddlewareArgs, AllMiddlewareArgs } from '@slack/bolt';
-import { getPrisma, isUserExempt, destroyThread, postEphemeral } from '../../utils/index.js';
+import {
+    getPrisma,
+    isUserBot,
+    isUserExempt,
+    destroyThread,
+    postEphemeral,
+} from '../../utils/index.js';
 
 async function newaccountListener({
     payload,
@@ -13,6 +19,8 @@ async function newaccountListener({
 
     const gate = await prisma.accountAgeGate.findUnique({ where: { channelId: channel } });
     if (!gate) return;
+
+    if (await isUserBot(user)) return;
 
     if (await isUserExempt(user, channel)) return;
 
