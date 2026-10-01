@@ -51,7 +51,7 @@ async function onMemberJoined({
 /**
  * Message listener to catch unauthorized bot messages (including chat:write.public).
  * Deletes messages from bots not on the whitelist in protected channels,
- * including thread replies.
+ * including thread replies. Messages an app posts with a user token are allowed.
  */
 async function messageListener({
     payload: message,
@@ -90,6 +90,11 @@ async function messageListener({
         const botUserId =
             ((botInfo as any)?.bot?.user_id as string | undefined) ??
             (userInfo?.user?.profile?.bot_id === botId ? userId : undefined);
+
+        // xoxp message, posted as a person via a bot, which is fine
+        const postedAsPerson =
+            !isClassicBotMessage && !!userId && userId !== botUserId && userInfo?.user?.is_bot === false;
+        if (postedAsPerson) return;
 
         console.log('[bot-whitelist] message check:', {
             userId,
