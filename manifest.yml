@@ -72,6 +72,11 @@ features:
           description: restrict a channel to accounts older than N days
           usage_hint: '[channel] [days]'
           should_escape: true
+        - command: /unsub-opt-out
+          url: https://gg4cwccgws8cksw080o04g4o.a.selfhosted.hackclub.com/slack/events
+          description: stop your UNSUBSCRIBE thread replies from being deleted
+          usage_hint: '[on|off|status]'
+          should_escape: true
 oauth_config:
     scopes:
         user:

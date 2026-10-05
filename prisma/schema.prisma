@@ -127,3 +127,8 @@ model AutoresponseCooldown {
   userId     String   @id
   lastSentAt DateTime @default(now())
 }
+
+model UnsubOptOut {
+  userId    String   @id
+  createdAt DateTime @default(now())
+}

@@ -108,11 +108,18 @@ app.use(async (args) => {
     }
 
     const body = args.body as {
+        command?: string;
         user_id?: string;
         user?: { id?: string };
         channel_id?: string;
         channel?: { id?: string };
     };
+
+    if (body.command && /\/(.*dev-)?unsub-opt-out$/.test(body.command)) {
+        await args.next();
+        return;
+    }
+
     const userId = body.user_id ?? body.user?.id;
     if (!userId) {
         await args.next();

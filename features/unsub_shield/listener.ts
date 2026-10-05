@@ -1,5 +1,6 @@
 import type {SlackEventMiddlewareArgs, AllMiddlewareArgs} from "@slack/bolt";
 import { deleteMessage, postEphemeral } from "../../utils/index.js";
+import { isUnsubOptedOut } from "./api.js";
 
 export default async function messageMatchListener({
     payload,
@@ -19,6 +20,10 @@ export default async function messageMatchListener({
 
     const messageText = payload.text ?? '';
     if (messageText !== "UNSUBSCRIBE") {
+        return;
+    }
+
+    if (await isUnsubOptedOut(payload.user)) {
         return;
     }
 
